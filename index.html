@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAGİS · Proje Gelişim Dosyası · Semih Akın</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08131f; --bg2:#0d1c2c; --bg3:#13263a; --line:rgba(140,190,220,.14);
+  --ink:#e4edf3; --muted:#8aa1b3; --amber:#f2a541; --amber-d:rgba(242,165,65,.14);
+  --teal:#45c4b0; --teal-d:rgba(69,196,176,.13); --red:#ef6f6c; --red-d:rgba(239,111,108,.13);
+  --code:#0a1825; --shadow:0 10px 40px rgba(0,0,0,.35);
+}
+html[data-theme="light"]{
+  --bg:#f3eee3; --bg2:#ebe4d5; --bg3:#e0d7c4; --line:rgba(20,45,70,.14);
+  --ink:#13263a; --muted:#5a6b78; --amber:#b86a0a; --amber-d:rgba(184,106,10,.12);
+  --teal:#13806f; --teal-d:rgba(19,128,111,.11); --red:#b8332f; --red-d:rgba(184,51,47,.1);
+  --code:#13263a; --shadow:0 10px 30px rgba(20,40,60,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:var(--bg);color:var(--ink);font:15.5px/1.65 "IBM Plex Sans",system-ui,sans-serif;transition:background .3s,color .3s}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:repeating-radial-gradient(circle at 85% -10%,transparent 0 58px,var(--line) 59px 60px)}
+main,header,footer{position:relative;z-index:1}
+a{color:inherit}
+code,.mono{font-family:"IBM Plex Mono",monospace;font-size:.88em}
+p code,li code,td code,dd code{background:var(--bg3);padding:1px 6px;border-radius:4px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em;line-height:1.15}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line)}
+@supports (backdrop-filter:blur(8px)){nav{backdrop-filter:blur(10px)}}
+nav .wrap{display:flex;align-items:center;gap:18px;height:58px}
+.brand{font-family:Fraunces,serif;font-weight:900;font-size:1.15rem;text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px var(--amber-d)}
+.links{display:flex;gap:4px;margin-left:auto;margin-right:-10px;overflow-x:auto;scrollbar-width:none}
+.links::-webkit-scrollbar{display:none}
+.links a{text-decoration:none;color:var(--muted);font-size:.86rem;padding:6px 10px;border-radius:6px;white-space:nowrap}
+.links a:hover,.links a.on{color:var(--ink);background:var(--bg3)}
+.tbtn{border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:8px;width:36px;height:34px;cursor:pointer;font-size:1rem;flex:none}
+
+/* hero */
+.hero{padding:70px 0 50px;display:grid;grid-template-columns:1.25fr .9fr;gap:40px;align-items:center}
+.kicker{font-family:"IBM Plex Mono",monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.hero h1{font-size:clamp(3.2rem,8vw,6.2rem);font-weight:900;margin:10px 0 6px}
+.hero h1 span{color:var(--amber)}
+.hero .sub{font-family:Fraunces,serif;font-size:1.35rem;color:var(--muted);margin-bottom:22px}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;max-width:520px}
+.meta div{background:var(--bg2);padding:10px 14px}
+.meta b{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.radar{position:relative;aspect-ratio:1;max-width:400px;width:100%;margin-left:auto;border-radius:50%;border:1px solid var(--line);
+  background:radial-gradient(circle,transparent 0 24%,var(--line) 24.3% 24.6%,transparent 25% 49%,var(--line) 49.3% 49.6%,transparent 50% 74%,var(--line) 74.3% 74.6%,transparent 75%),var(--bg2);overflow:hidden;box-shadow:var(--shadow)}
+.radar::before,.radar::after{content:"";position:absolute;background:var(--line)}
+.radar::before{left:50%;top:0;bottom:0;width:1px}.radar::after{top:50%;left:0;right:0;height:1px}
+.sweep{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 300deg,var(--teal-d) 340deg,color-mix(in srgb,var(--teal) 45%,transparent) 360deg);animation:spin 5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.blip{position:absolute;width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 5px var(--teal-d);transform:translate(-50%,-50%)}
+.blip small{position:absolute;left:14px;top:-6px;font:500 .7rem "IBM Plex Mono",monospace;white-space:nowrap;color:var(--teal)}
+.blip.a{background:var(--amber);box-shadow:0 0 0 5px var(--amber-d)}.blip.a small{color:var(--amber)}
+.radar .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;font-family:"IBM Plex Mono",monospace}
+.radar .center b{display:block;font-family:Fraunces,serif;font-size:3rem;line-height:1}
+.radar .center span{font-size:.72rem;color:var(--muted);letter-spacing:.1em}
+
+/* sections */
+section{padding:64px 0;border-top:1px solid var(--line)}
+.sh{display:flex;align-items:baseline;gap:16px;margin-bottom:10px}
+.sh .n{font:500 .8rem "IBM Plex Mono",monospace;color:var(--amber)}
+.sh h2{font-size:clamp(1.9rem,4vw,2.6rem)}
+.lead{color:var(--muted);max-width:760px;margin-bottom:28px;font-size:1.03rem}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card h3{font-size:1.15rem;margin-bottom:6px}
+.card p{color:var(--muted);font-size:.95rem}
+.tag{display:inline-block;font:500 .7rem "IBM Plex Mono",monospace;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.t-done{background:var(--teal-d);color:var(--teal)}.t-wip{background:var(--amber-d);color:var(--amber)}.t-no{background:var(--bg3);color:var(--muted)}.t-red{background:var(--red-d);color:var(--red)}
+.note{border-left:3px solid var(--amber);background:var(--amber-d);padding:12px 16px;border-radius:0 8px 8px 0;font-size:.93rem;margin-top:16px}
+.note.red{border-color:var(--red);background:var(--red-d)}
+.note.teal{border-color:var(--teal);background:var(--teal-d)}
+
+/* charts */
+.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}
+.chart h4{font:600 .8rem "IBM Plex Sans";letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.chart svg{width:100%;height:auto;display:block}
+.chart .big{font-family:Fraunces,serif;font-size:1.9rem;font-weight:700}
+
+/* sdlc */
+.phases{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:18px}
+.ph{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 10px 10px;cursor:pointer;text-align:left;color:var(--ink);font:inherit;position:relative;transition:.15s}
+.ph:hover{border-color:var(--muted)}
+.ph.on{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber) inset}
+.ph .i{font:500 .72rem "IBM Plex Mono",monospace;color:var(--muted)}
+.ph b{display:block;font-size:.9rem;margin:2px 0 8px;line-height:1.25}
+.ph .bar{height:5px;border-radius:3px;background:var(--bg3);overflow:hidden}
+.ph .bar i{display:block;height:100%;background:var(--teal)}
+.ph.wip .bar i{background:var(--amber)}
+.phdetail{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.phdetail h3{font-size:1.4rem;margin-bottom:8px}
+.phdetail ul{padding-left:18px;color:var(--muted)}
+.phdetail li{margin:4px 0}
+.phdetail .lbl{font:600 .75rem "IBM Plex Sans";letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;display:block}
+.models{margin-top:26px}
+.models table{width:100%;border-collapse:collapse;font-size:.92rem}
+.models th,.models td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.models th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.models tr.hl td{background:var(--amber-d)}
+.cycle{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px;font-size:.9rem}
+.cycle span{background:var(--bg3);padding:6px 12px;border-radius:20px}
+.cycle em{color:var(--amber);font-style:normal}
+
+/* weeks */
+.wtabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.wtab{background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 16px;cursor:pointer;font:inherit;text-align:left;min-width:140px}
+.wtab small{display:block;color:var(--muted);font-size:.76rem}
+.wtab b{font-family:Fraunces,serif;font-size:1.1rem}
+.wtab.on{border-color:var(--amber);background:var(--amber-d)}
+.wtab.ghost{opacity:.55;cursor:default;border-style:dashed}
+.wk-head{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:16px}
+.wk-head h3{font-size:1.8rem}
+.wk-head .stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-width:96px}
+.stat small{display:block;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.stat b{font-family:Fraunces,serif;font-size:1.35rem}
+.wk-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.wk-grid .full{grid-column:1/-1}
+.blk h4{font:600 .76rem "IBM Plex Sans";letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
+.blk ol,.blk ul{padding-left:20px}
+.blk li{margin:4px 0}
+.blk p{color:var(--ink)}
+.prob{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.94rem}
+.prob dt{font:600 .74rem "IBM Plex Sans";text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:3px}
+.sdlc-chip{display:inline-flex;gap:6px;align-items:center;font-size:.82rem;color:var(--muted);margin-top:4px}
+
+/* code */
+.codewrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;align-items:start}
+pre.code{background:var(--code);color:#d6e2ea;border-radius:12px;padding:14px 0;overflow-x:auto;font:13px/1.6 "IBM Plex Mono",monospace;border:1px solid rgba(140,190,220,.14)}
+pre.code .ln{display:block;padding:0 16px 0 0;transition:background .15s;min-height:1.6em}
+pre.code .ln::before{content:attr(data-n);display:inline-block;width:38px;text-align:right;margin-right:14px;color:#4e6577;user-select:none}
+pre.code .ln.hot{background:rgba(242,165,65,.16);box-shadow:inset 3px 0 0 #f2a541}
+.k{color:#ff9e64}.s{color:#9ece6a}.c{color:#6a8299;font-style:italic}.nm{color:#e0af68}.f{color:#7dcfff}.b{color:#bb9af7}
+.ann{display:flex;flex-direction:column;gap:6px;max-height:620px;overflow:auto;padding-right:4px}
+.ann button{all:unset;cursor:pointer;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:.9rem;line-height:1.5}
+.ann button:hover,.ann button.on{border-color:var(--amber)}
+.ann button code{color:var(--amber);background:none;padding:0}
+.ann .lr{font:500 .7rem "IBM Plex Mono",monospace;color:var(--muted);display:block;margin-bottom:2px}
+
+/* simulator */
+.sim{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+.simtabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.simtabs button{background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;font:inherit;font-size:.88rem}
+.simtabs button.on{border-color:var(--amber);color:var(--amber)}
+.os{border-radius:10px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #3a3f44;background:#ececec;font-family:"Segoe UI",system-ui,sans-serif}
+.os .tb{background:#f3f3f3;color:#222;font-size:12px;display:flex;align-items:center;height:30px;padding-left:10px;border-bottom:1px solid #ddd}
+.os .tb.dk{background:#202020;color:#ddd;border-color:#111}
+.os .tb span{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.os .tb i{width:44px;text-align:center;font-style:normal;opacity:.7}
+.win{position:relative;overflow:hidden}
+.ctk{background:#242424;color:#dce4ee}
+.ctkbtn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#1f6aa5;color:#dce4ee;border:0;border-radius:6px;height:28px;font:13px "Segoe UI",system-ui,sans-serif;cursor:pointer;padding:0 14px}
+.ctkbtn:hover{background:#144870}
+.ctkframe{background:#2b2b2b;border-radius:15px}
+.ctkentry{background:#343638;border:2px solid #565b5e;border-radius:6px;height:30px;color:#dce4ee;padding:0 8px;font:13px "Segoe UI",system-ui,sans-serif;width:100%;outline:none}
+.ctkentry:focus{border-color:#1f6aa5}
+.ctkentry::placeholder{color:#9b9b9b}
+.tkwin{background:#f0f0f0;color:#000;font:13px "Segoe UI",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center}
+.tkbtn{background:#e1e1e1;border:1px solid #adadad;padding:2px 10px;font:13px "Segoe UI",system-ui,sans-serif;cursor:pointer}
+.tkbtn:active{background:#cce4f7}
+.console{background:#05090d;color:#9ece6a;font:12.5px/1.6 "IBM Plex Mono",monospace;border-radius:10px;margin-top:10px;padding:10px 12px;min-height:84px;max-height:150px;overflow:auto;border:1px solid rgba(140,190,220,.14)}
+.console .p{color:#4e6577}
+.console .w{color:#e0af68}
+.console .r{color:#ef6f6c}
+.flash{animation:fl .6s}
+@keyframes fl{0%{box-shadow:0 0 0 0 rgba(242,165,65,.9)}100%{box-shadow:0 0 0 14px rgba(242,165,65,0)}}
+.simside h3{font-size:1.3rem;margin-bottom:6px}
+.simside p{color:var(--muted);font-size:.94rem;margin-bottom:10px}
+.simside ul{padding-left:18px;font-size:.92rem;color:var(--muted)}
+.simside li{margin:4px 0}
+.toggle{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.9rem;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--amber);width:16px;height:16px}
+
+/* glossary & qa */
+.gsearch{width:100%;max-width:380px;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:10px 14px;color:var(--ink);font:inherit;margin-bottom:16px}
+.gloss{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gloss dl{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.gloss dt{font:500 .92rem "IBM Plex Mono",monospace;color:var(--amber);margin-bottom:3px}
+.gloss dd{font-size:.88rem;color:var(--muted)}
+.gloss .wk{font-size:.7rem;color:var(--teal);font-family:"IBM Plex Mono",monospace;margin-top:4px;display:block}
+details.qa{background:var(--bg2);border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+details.qa summary{cursor:pointer;padding:14px 18px;font-weight:600;list-style:none;display:flex;gap:12px;align-items:baseline}
+details.qa summary::-webkit-details-marker{display:none}
+details.qa summary::before{content:"+";font-family:"IBM Plex Mono";color:var(--amber);width:12px;flex:none}
+details.qa[open] summary::before{content:"−"}
+details.qa .ans{padding:0 18px 16px 42px;color:var(--muted);font-size:.95rem}
+details.qa .ans p+p{margin-top:8px}
+details.qa .lvl{margin-left:auto;flex:none}
+.qa-filter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.qa-filter button{background:var(--bg2);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:5px 12px;cursor:pointer;font:inherit;font-size:.85rem}
+.qa-filter button.on{color:var(--ink);border-color:var(--amber)}
+
+.road{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.road .card b{font-family:Fraunces,serif;font-size:1.05rem;display:block;margin-bottom:4px}
+.road .card .tag{margin-bottom:8px}
+
+footer{border-top:1px solid var(--line);padding:30px 0 50px;color:var(--muted);font-size:.85rem}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr)}.radar{margin:0 auto;max-width:320px}
+  .grid3,.charts,.gloss,.road{grid-template-columns:1fr 1fr}
+  .phases{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .phdetail,.wk-grid,.codewrap,.sim,.grid2{grid-template-columns:minmax(0,1fr)}
+  .ann{max-height:none}
+}
+@media (max-width:560px){
+  .grid3,.charts,.gloss,.road{grid-template-columns:minmax(0,1fr)}
+  .phases{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .links{display:none}
+  .tbtn{margin-left:auto}
+  .meta{grid-template-columns:1fr}
+  section{padding:48px 0}
+}
+@media (prefers-reduced-motion:reduce){.sweep{animation:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="#top"><i></i>BAGİS</a>
+  <div class="links" id="links">
+    <a href="#proje">Proje</a><a href="#sdlc">SDLC</a><a href="#haftalar">Haftalar</a><a href="#sim">Simülatör</a><a href="#kavramlar">Kavramlar</a><a href="#sorular">Sunum soruları</a><a href="#yol">Yol haritası</a>
+  </div>
+  <button class="tbtn" id="theme" title="Tema değiştir" aria-label="Tema değiştir">☾</button>
+</div></nav>
+
+<main id="top">
+<header class="wrap hero">
+  <div>
+    <div class="kicker">Yazılım Geliştirme I · Proje gelişim dosyası</div>
+    <h1>BAG<span>İ</span>S</h1>
+    <div class="sub">Akıllı Balıkçı Gemisi İzleme Sistemi</div>
+    <p style="color:var(--muted);max-width:560px;margin-bottom:22px">Haftalık raporların tek yerde, anlaşılır hali: hangi hafta ne yapıldı, kod satır satır ne işe yarıyor, proje yazılım yaşam döngüsünün (SDLC) neresinde duruyor ve sunumda hangi sorular gelebilir.</p>
+    <div class="meta">
+      <div><b>Öğrenci</b>Semih Akın</div>
+      <div><b>Öğrenci no</b>24130750</div>
+      <div><b>Dil / Kütüphane</b>Python · CustomTkinter</div>
+      <div><b>Raporlar</b>Hafta 2 – 5 (20 Ekim – 15 Kasım 2026)</div>
+    </div>
+  </div>
+  <div class="radar" aria-hidden="true">
+    <div class="sweep"></div>
+    <div class="blip a" style="left:58%;top:30%"><small>Karadeniz-1 · 12 kn</small></div>
+    <div class="blip" style="left:27%;top:66%"><small>Arayüz ✓</small></div>
+    <div class="blip" style="left:36%;top:24%"><small>Giriş ekranı ✓</small></div>
+    <div class="blip" style="left:72%;top:74%;opacity:.45"><small>SQLite · H6</small></div>
+    <div class="center"><b>%20</b><span>TAMAMLANMA</span></div>
+  </div>
+</header>
+
+<!-- PROJE -->
+<section id="proje"><div class="wrap">
+  <div class="sh"><span class="n">01</span><h2>Proje bir bakışta</h2></div>
+  <p class="lead">BAGİS, balıkçı gemilerinin durumunu (konum, seyir durumu, hız) tek bir masaüstü uygulamasından takip etmeyi hedefleyen bir sistem. Raporlara göre uygulama Python ile yazılıyor ve arayüzü CustomTkinter ile kuruluyor; veriler ileride SQLite veritabanında tutulacak.</p>
+  <div class="grid3">
+    <div class="card"><span class="tag t-done">Hazır</span><h3 style="margin-top:8px">Giriş ekranı</h3><p>Kullanıcı adı, yıldızlı şifre kutusu ve "Giriş Yap" butonu. Doğru bilgiyle ana ekrana geçiyor (şimdilik sabit <code>admin / 1234</code>).</p></div>
+    <div class="card"><span class="tag t-wip">Yapılıyor</span><h3 style="margin-top:8px">Ana ekran (Dashboard)</h3><p>Solda menü (Ana Sayfa, Gemi Listesi, Harita / İzleme, Çıkış), sağda gemi durum kartları. Kartlar şimdilik sabit örnek veri gösteriyor.</p></div>
+    <div class="card"><span class="tag t-no">Sırada</span><h3 style="margin-top:8px">Veri katmanı</h3><p>SQLite ile gemiler ve kullanıcılar tabloları, gerçek kullanıcı doğrulaması, canlı konum/durum verisi. Henüz başlanmadı.</p></div>
+  </div>
+  <div class="charts" id="charts"></div>
+  <div class="note teal">Hafta 1 raporu bu dosyada yok; anlatım Hafta 2'den başlıyor. Hafta 1 eklenirse aynı kalıba kolayca eklenebilir.</div>
+</div></section>
+
+<!-- SDLC -->
+<section id="sdlc"><div class="wrap">
+  <div class="sh"><span class="n">02</span><h2>SDLC: proje yaşam döngüsünün neresinde?</h2></div>
+  <p class="lead">SDLC (Software Development Life Cycle, yazılım geliştirme yaşam döngüsü), bir yazılımın fikirden kullanıma kadar geçtiği aşamaların adı. Aşağıda her aşamanın genel anlamı ve BAGİS'te o aşamada ne yapıldığı var. Bir aşamaya tıkla.</p>
+  <div class="phases" id="phases"></div>
+  <div class="phdetail card" id="phdetail"></div>
+
+  <div class="models">
+    <h3 style="font-size:1.5rem;margin-bottom:6px">Bu proje hangi SDLC modeline benziyor?</h3>
+    <p style="color:var(--muted);max-width:780px;margin-bottom:14px">Raporlarda bir model adı geçmiyor; aşağıdaki eşleştirme raporlardaki çalışma biçimine bakarak yapılmış bir yorum. En yakın tanım: <b style="color:var(--ink)">prototip ağırlıklı, artırımlı (incremental) geliştirme.</b> Önce ekranlar görsel olarak çiziliyor, sonra her hafta üzerine küçük bir işlev ekleniyor.</p>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Model</th><th>Nasıl çalışır?</th><th>BAGİS'e uyuyor mu?</th></tr></thead>
+      <tbody>
+        <tr><td><b>Şelale (Waterfall)</b></td><td>Aşamalar sırayla ve bir kez yapılır: önce tüm gereksinimler, sonra tüm tasarım, sonra kodlama, sonra test.</td><td>Hayır. Veritabanı tasarlanmadan arayüz kodlanmaya başlandı; aşamalar iç içe ilerliyor.</td></tr>
+        <tr class="hl"><td><b>Prototip</b></td><td>Kullanıcının göreceği ekranlar önce taslak olarak yapılır, üzerinden konuşulur, sonra asıl sistem kurulur.</td><td>Evet. Hafta 4'te "henüz butonlara işlev eklenmedi, sadece görsel yerleşim" deniyor: bu tam bir arayüz prototipi.</td></tr>
+        <tr class="hl"><td><b>Artırımlı (Incremental)</b></td><td>Yazılım küçük parçalar halinde büyür; her parça bir öncekinin üzerine eklenir.</td><td>Evet. H3 test penceresi → H4 giriş ekranı → H5 aynı kodun üzerine sayfa geçişi ve menü. Hafta 5'te "geçen haftaki kodumun üzerine ekledim" deniyor.</td></tr>
+        <tr><td><b>Çevik (Agile / Scrum)</b></td><td>Kısa döngüler (sprint): planla, yap, gözden geçir, sonraki döngüyü planla.</td><td>Kısmen. Haftalık rapor formatı (hedef → yapılan → öz değerlendirme → gelecek hafta planı) bir sprint döngüsüne benziyor, ama ekip, kullanıcı geri bildirimi ve backlog yok.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cycle"><span>1 · Haftanın hedefleri</span><em>→</em><span>2 · Yapılan çalışma</span><em>→</em><span>5 · Problem / çözüm</span><em>→</em><span>10 · Öz değerlendirme</span><em>→</em><span>8 · Gelecek hafta planı</span><em>↺</em></div>
+    <p style="color:var(--muted);font-size:.88rem;margin-top:8px">Rapor şablonunun bölüm numaralarıyla haftalık döngü. Her haftanın 8. bölümü, bir sonraki haftanın 1. bölümüne dönüşüyor.</p>
+  </div>
+</div></section>
+
+<!-- HAFTALAR -->
+<section id="haftalar"><div class="wrap">
+  <div class="sh"><span class="n">03</span><h2>Hafta hafta</h2></div>
+  <p class="lead">Her haftanın raporu özetlendi. Kod bölümünde sağdaki açıklamalara tıklayınca ilgili satırlar soldaki kodda işaretlenir.</p>
+  <div class="wtabs" id="wtabs"></div>
+  <div id="week"></div>
+</div></section>
+
+<!-- SIMULATOR -->
+<section id="sim"><div class="wrap">
+  <div class="sh"><span class="n">04</span><h2>Kod simülatörü</h2></div>
+  <p class="lead">Her haftanın rapordaki kodu çalıştırılınca ekranda nasıl bir pencere açılırdı, burada tarayıcıda taklit ediliyor. Butonlara bas, kutulara yaz; alttaki konsol, Python'un terminale yazdıklarını gösteriyor.</p>
+  <div class="sim">
+    <div>
+      <div class="simtabs" id="simtabs"></div>
+      <div class="os" id="os"></div>
+      <div class="console" id="console"></div>
+    </div>
+    <div class="simside" id="simside"></div>
+  </div>
+</div></section>
+
+<!-- KAVRAMLAR -->
+<section id="kavramlar"><div class="wrap">
+  <div class="sh"><span class="n">05</span><h2>Kavram sözlüğü</h2></div>
+  <p class="lead">Raporlarda ve kodda geçen her terim, kısa ve sade tanımıyla. Yanındaki etiket, terimin ilk geçtiği hafta.</p>
+  <input class="gsearch" id="gsearch" type="search" placeholder="Ara: pack, place_forget, event…">
+  <div class="gloss" id="gloss"></div>
+</div></section>
+
+<!-- SORULAR -->
+<section id="sorular"><div class="wrap">
+  <div class="sh"><span class="n">06</span><h2>Sunumda gelebilecek sorular</h2></div>
+  <p class="lead">Hocanın raporlara ve koda bakarak sorabileceği sorular ve kısa cevap önerileri. "Zor" etiketliler, raporlarda zayıf kalan ya da henüz kararı verilmemiş noktalar: bunlara önceden hazırlıklı olmak iyi olur.</p>
+  <div class="qa-filter" id="qafilter"></div>
+  <div id="qa"></div>
+</div></section>
+
+<!-- YOL -->
+<section id="yol"><div class="wrap">
+  <div class="sh"><span class="n">07</span><h2>Yol haritası</h2></div>
+  <p class="lead">Hafta 5 raporundaki plan ve henüz başlanmamış işler. Sonraki raporlarda buradaki kartlar "hazır"a dönecek.</p>
+  <div class="road">
+    <div class="card"><span class="tag t-wip">Hafta 6</span><b>Hatalı giriş uyarısı</b><p>Yanlış kullanıcı adı/şifrede kırmızı uyarı etiketi.</p></div>
+    <div class="card"><span class="tag t-wip">Hafta 6 · Öncelik</span><b>Menüye göre içerik değişimi</b><p>Sol menüdeki butona basınca sağdaki <code>icerik_frame</code>'in güncellenmesi.</p></div>
+    <div class="card"><span class="tag t-wip">Hafta 6</span><b>Gemi listesi ekranı</b><p>"Gemi Listesi" butonunda tablo/liste görünümü.</p></div>
+    <div class="card"><span class="tag t-wip">Hafta 6</span><b>SQLite tabloları</b><p><code>gemiler</code> ve <code>kullanicilar</code> tablolarının oluşturulmaya başlanması.</p></div>
+    <div class="card"><span class="tag t-no">Sonra</span><b>Gerçek giriş doğrulaması</b><p>Sabit <code>admin/1234</code> yerine veritabanındaki kullanıcıyla giriş.</p></div>
+    <div class="card"><span class="tag t-no">Sonra</span><b>Harita / İzleme</b><p>Gemilerin konumlarının harita ekranında gösterilmesi.</p></div>
+    <div class="card"><span class="tag t-no">Sonra</span><b>Canlı veri</b><p>Gemi konum ve durum verilerinin sisteme alınması.</p></div>
+    <div class="card"><span class="tag t-no">Sonra</span><b>Test ve teslim</b><p>Sistematik test, hata düzeltme, dokümantasyon.</p></div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">BAGİS · Semih Akın (24130750) · Yazılım Geliştirme I. İçerik Hafta 2–5 haftalık gelişim raporlarından derlenmiştir; SDLC model eşleştirmesi ve sunum soruları yorum/öneri niteliğindedir.</div></footer>
+
+<script>
+/* ---------- tema ---------- */
+(function(){
+  const root=document.documentElement;
+  let t=null; try{t=localStorage.getItem('bagis-theme')}catch(e){}
+  const btn=document.getElementById('theme');
+  if(t){root.dataset.theme=t; btn.textContent=t==='light'?'☀':'☾'}
+  btn.onclick=()=>{
+    const n=root.dataset.theme==='light'?'dark':'light';
+    root.dataset.theme=n; btn.textContent=n==='light'?'☀':'☾'; try{localStorage.setItem('bagis-theme',n)}catch(e){}
+  };
+})();
+
+/* ---------- veri ---------- */
+const WEEKS=[
+{n:2,date:"20 Ekim 2026",title:"Temel atma: ister dokümanı ve Python arayüz mantığı",pct:5,ai:30,score:8,
+ sdlc:["Gereksinim analizi","Teknoloji araştırması"],
+ goals:["Proje gereksinimlerinin (Teknik İster Dokümanı) okunup genel kapsamın anlaşılması.","Python ile kullanıcı arayüzü programlama temellerinin öğrenilmesi.","Python GUI kütüphanelerinin araştırılması ve temel pencere yapılarının kavranması."],
+ why:"Verileri ekranda göstermek ve kullanıcıyla etkileşim kurmak için sağlam bir arayüz bilgisi gerekiyor. İlk haftayı karmaşık kod yerine dilin ve arayüz yapılarının mantığını öğrenmeye ayırmak sağlam bir temel sağlıyor.",
+ done:"Teknik ister dokümanı incelenip projeden ne beklendiği anlaşıldı. Ardından Python arayüz eğitimlerine başlandı; pencere oluşturma, buton ekleme ve metin kutuları araştırıldı. Asıl projenin koduna henüz başlanmadı, geliştirme ortamı hazırlandı.",
+ status:{ok:"Teknik ister dokümanının analizi, Python arayüz programlamaya giriş.",wip:"Olay güdümlü (event-driven) programlama ve arayüz tasarımı öğrenimi.",no:"Veritabanı tasarımı ve veri işleme algoritmaları."},
+ tech:"Python (Tkinter)",areas:["Arayüz / UI geliştirme","Dokümantasyon"],
+ probs:[{p:"Arayüz programlamadaki olay güdümlü (event-driven) yapının mantığını kavramakta zorlanmak.",c:"Yapay zekâdan konuyu basit örneklerle açıklamasını istemek ve küçük deneme kodları yazarak pratik yapmak.",r:"Raporda boş bırakılmış."}],
+ learned:["Teknik ister dokümanının nasıl analiz edileceği.","Python'da GUI geliştirme mantığı; pencere ve araçların ekrana yerleştirilmesi.","Butona tıklama gibi olayların arka plandaki fonksiyonlara bağlanması (event-driven)."],
+ next:["Projeye ait ilk taslak ekranın (giriş veya ana menü) tasarlanması.","Kullanıcıdan arayüz yoluyla basit verilerin alınıp test edilmesi."],
+ aiNote:"Gemini ve YouTube. Dokümandaki terimleri sadeleştirmek ve temel örnek kod istemek için kullanıldı. Kod bölümündeki örnek doğrudan yapay zekâdan alınıp test edildi.",
+ self:"Ortada bitmiş kod olmasa da ileriki haftalar için dürüst ve sağlam bir temel atıldı.",
+ flags:["5. bölümde problemin <b>Sonuç</b> kısmı boş bırakılmış. Teslim edilmiş bir raporsa sunumda sözlü olarak tamamlamak iyi olur: \"küçük denemelerle butonun <code>command</code> ile fonksiyona bağlanmasını anladım\" gibi."],
+ codeTitle:"Tkinter ile ilk pencere ve buton",
+ code:`import tkinter as tk
+
+pencere = tk.Tk()
+pencere.title("İlk Arayüz Denemesi")
+pencere.geometry("300x200")
+
+etiket = tk.Label(pencere, text="Arayüz Tasarımı Öğreniyorum")
+etiket.pack(pady=20)
+
+buton = tk.Button(pencere, text="Bana Tıkla", command=lambda: print("Buton çalışıyor!"))
+buton.pack()
+
+pencere.mainloop()`,
+ ann:[
+  {f:"import tkinter",t:"Python'un içinde hazır gelen <code>tkinter</code> arayüz kütüphanesini <code>tk</code> kısa adıyla projeye alır."},
+  {f:"pencere = tk.Tk()",t:"Ana pencereyi oluşturur. Uygulamadaki her şey bu pencerenin içine yerleşir."},
+  {f:"pencere.title",n:2,t:"Pencerenin başlık çubuğundaki yazıyı ve boyutunu (300 piksel genişlik × 200 yükseklik) ayarlar."},
+  {f:"etiket = tk.Label",n:2,t:"Ekrana bir yazı (Label) koyar. <code>pack(pady=20)</code> onu üstten alta dizer ve üstüne/altına 20 piksel boşluk bırakır."},
+  {f:"buton = tk.Button",t:"Buton oluşturur. <code>command=</code> butona basılınca çalışacak fonksiyonu verir. Burada <code>lambda</code> ile tek satırlık isimsiz bir fonksiyon yazılmış: terminale yazı basar. Event-driven mantığın özü bu satır."},
+  {f:"pencere.mainloop()",t:"Pencereyi açık tutan sonsuz döngü. Program burada bekler ve tıklama gibi olayları dinler; bu satır olmasa pencere açılıp hemen kapanır."}
+ ]},
+{n:3,date:"27 Ekim 2026",title:"CustomTkinter'a geçiş: 21 videoluk eğitim serisi",pct:10,ai:15,score:8,
+ sdlc:["Tasarım: teknoloji seçimi"],
+ goals:["Arayüzü daha modern hale getirmek için CustomTkinter kütüphanesinin öğrenilmesi.","YouTube'daki 21 videoluk CustomTkinter eğitim serisinin tamamlanması.","Modern arayüz bileşenlerinin (buton, metin kutusu, frame) çalışma mantığının kavranması."],
+ why:"Standart arayüz kütüphaneleri görsel olarak yetersiz kalabiliyor. BAGİS gibi kapsamlı bir projenin kullanıcı dostu ve modern görünmesi için CustomTkinter seçildi. Hemen kod yazmak yerine eğitimi bitirmek, ileride oluşabilecek karmaşayı önlüyor.",
+ done:"21 videoluk seri baştan sona izlendi, örnekler bizzat yazılarak pratik yapıldı. Karanlık/aydınlık mod, CTkButton, CTkFrame ve sekmeli yapılar öğrenildi. Arayüz teknolojisi standart Tkinter'dan CustomTkinter'a yükseltildi.",
+ status:{ok:"CustomTkinter eğitim serisinin tamamlanması ve modern arayüz mantığının kavranması.",wip:"Projenin kendi arayüz taslaklarının kâğıt üzerinde planlanması.",no:"Veritabanı işlemleri ve asıl sistemin kodlanması."},
+ tech:"Python (CustomTkinter)",areas:["Arayüz / UI geliştirme"],
+ probs:[{p:"Standart Tkinter ile CustomTkinter arasındaki parametre ve sözdizimi farklarının kafa karıştırması.",c:"Videolardaki kodları kendi geliştirme ortamında satır satır yazıp farkları test etmek.",r:"Eski kütüphanenin mantığı yeni kütüphaneye uyarlandı."}],
+ learned:["CustomTkinter'ın projeye dahil edilmesi ve temel ayarları.","Uygulamaya karanlık/aydınlık tema desteği ekleme.","CTkButton, CTkLabel, CTkFrame kullanımı."],
+ next:["Projenin ilk somut ekranı olan Giriş Ekranı'nın kodlanması.","Ana menü taslağının oluşturulması."],
+ aiNote:"Gemini ve ağırlıklı olarak YouTube. Yapay zekâ sadece videolarda takılan teorik soruları ve parametreleri hızlıca sormak için \"sözlük\" gibi kullanıldı.",
+ self:"Geçen haftaki arayüz açığı sağlam şekilde kapatıldı; asıl kodlamaya hazır hale gelindi. En çok zorlanılan konu grid/pack/place yerleşim mantığı.",
+ flags:["9.4 \"Önemli Promptlar\" bölümü boş. Bu hafta yapay zekâ az kullanıldığı için normal, ama boş bırakmak yerine \"bu hafta kayda değer prompt kullanmadım\" yazmak daha düzgün durur."],
+ codeTitle:"CustomTkinter test penceresi",
+ code:`import customtkinter as ctk
+
+# Tema ve renk ayarları
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# Ana pencere oluşturma
+app = ctk.CTk()
+app.geometry("400x240")
+app.title("BAGİS - Arayüz Testi")
+
+# Modern bir buton ekleme
+button = ctk.CTkButton(master=app, text="Sisteme Giriş", command=lambda: print("Tıklandı!"))
+button.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+
+app.mainloop()`,
+ ann:[
+  {f:"import customtkinter",t:"CustomTkinter'ı <code>ctk</code> adıyla alır. Python'la birlikte gelmez, <code>pip install customtkinter</code> ile kurulur."},
+  {f:"set_appearance_mode",n:2,t:"Uygulamanın tamamını karanlık temaya ve mavi renk şemasına alır. Tkinter'da bunu yapmak için her bileşenin rengini tek tek ayarlamak gerekirdi; CustomTkinter'ı seçmenin ana sebebi bu."},
+  {f:"app = ctk.CTk()",t:"<code>tk.Tk()</code>'nin CustomTkinter karşılığı: ana pencere."},
+  {f:"button = ctk.CTkButton",t:"Yuvarlak köşeli modern buton. <code>master=app</code> butonun hangi pencereye ait olduğunu söyler (Tkinter'da ilk parametre olarak verilen şeyin adlandırılmış hali)."},
+  {f:"button.place",t:"<code>place</code> ile konumu oranla verir: <code>relx=0.5, rely=0.5</code> pencerenin yatay ve dikey ortası, <code>anchor=CENTER</code> butonun kendi merkezini o noktaya oturtur. Pencere büyüse de buton ortada kalır."},
+  {f:"app.mainloop()",t:"Olayları dinleyen ana döngü. Butona basılınca <code>lambda</code> çalışır ve terminale \"Tıklandı!\" yazar."}
+ ]},
+{n:4,date:"4 Kasım 2026",title:"İlk somut ekran: giriş (login) taslağı",pct:15,ai:15,score:6,
+ sdlc:["Tasarım: arayüz prototipi","Geliştirme başlangıcı"],
+ goals:["CustomTkinter bilgisiyle projenin Giriş Ekranı taslağının oluşturulmaya başlanması.","Ana ekran için sol menü (Sidebar) ve içerik alanı (Frame) yerleşiminin kurgulanması.","Buton, metin kutusu ve başlıkların pencere içindeki hizalamalarının ayarlanması."],
+ why:"Teorik bilgiyi pratiğe döküp projenin ilk görsel iskeletini oluşturmak gerekiyor. Backend'e geçmeden önce ekran tasarımlarını oturtmak, özellik eklerken işi kolaylaştıracak.",
+ done:"Diğer derslerin yoğunluğu nedeniyle sadece arayüzün temel yapısı üzerinde çalışıldı. Giriş ekranı (kullanıcı adı, şifre) ve sol menü iskeleti oluşturuldu. Butonlara henüz işlev veya veritabanı bağlantısı eklenmedi; renk uyumu ve çerçevelerin düzgün durması üzerine denemeler yapıldı. İlk kez deneme kodlarından çıkıp doğrudan BAGİS'in kendi pencereleri oluşmaya başladı.",
+ status:{ok:"Giriş ekranı form elemanlarının yerleştirilmesi ve ana pencere çerçeve yapısının temel kurulumu.",wip:"Ana menü tasarımı, sayfalar arası geçiş, bileşenlerin tam hizalanması.",no:"Veritabanı bağlantısı, kullanıcı doğrulaması (backend), gemi izleme modülleri."},
+ tech:"Python · CustomTkinter · VS Code",areas:["Arayüz / UI geliştirme"],
+ probs:[{p:"Pencere büyütülüp küçültüldüğünde çerçevelerin ve giriş kutularının kayması, orantısız görünmesi.",cause:"Sabit boyutlar vermek ve yerleşim sistemindeki satır/sütun ağırlıklarını tam ayarlayamamak.",c:"Bileşenleri doğrudan pencereye koymak yerine bir ana çerçeve (Frame) içine almak; padx/pady boşluklarını deneme-yanılmayla düzenlemek.",r:"Kutular ve butonlar daha toplu ve ortalı göründü; tam dinamik yapı üzerinde çalışma sürüyor."}],
+ learned:["CTkFrame ile bileşenleri gruplandırıp düzenli kutular oluşturma.","CTkEntry'de placeholder_text (ipucu metni) ve show='*' (şifre gizleme).","pack() içinde padx ve pady ile boşluk bırakma."],
+ next:["Ana sayfa (Dashboard) ve sol menü tasarımının tamamlanması.","Giriş ekranından ana ekrana geçiş yapısının kurulması.","Gemi bilgilerinin listeleneceği tablo/kart alanlarının hazırlanması."],
+ aiNote:"Gemini, 30 dakikadan az. Videoları geri sarmak yerine unutulan parametreleri (şifre gizleme <code>show='*'</code>, <code>pady=(üst, alt)</code>) hızlıca sormak için. Kodun ana yapısı kendi yazıldı.",
+ self:"Zaman yönetiminde zorlanıldı, ekranlar yapım aşamasında kaldı. Yine de proje boş bırakılmayıp iskelet kurulduğu için 6 puan.",
+ flags:[],
+ codeTitle:"Giriş ekranı çerçevesi ve form elemanları",
+ code:`import customtkinter as ctk
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+app = ctk.CTk()
+app.geometry("700x450")
+app.title("BAGİS - Akıllı Balıkçı Gemisi İzleme Sistemi")
+
+# Giriş kutularını tutacak orta çerçeve (Frame)
+login_frame = ctk.CTkFrame(master=app, width=320, height=300, corner_radius=15)
+login_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+
+baslik = ctk.CTkLabel(master=login_frame, text="BAGİS Sistem Girişi", font=("Arial", 20, "bold"))
+baslik.pack(pady=(30, 20), padx=20)
+
+kullanici_adi = ctk.CTkEntry(master=login_frame, placeholder_text="Kullanıcı Adı", width=220)
+kullanici_adi.pack(pady=10, padx=20)
+
+sifre = ctk.CTkEntry(master=login_frame, placeholder_text="Şifre", show="*", width=220)
+sifre.pack(pady=10, padx=20)
+
+giris_buton = ctk.CTkButton(master=login_frame, text="Giriş Yap", width=220)
+giris_buton.pack(pady=20, padx=20)
+
+app.mainloop()`,
+ ann:[
+  {f:"login_frame = ctk.CTkFrame",t:"Giriş formunu taşıyacak yuvarlak köşeli bir kutu (çerçeve). Bütün form elemanlarının <code>master</code>'ı bu çerçeve olduğu için hepsi birlikte hareket eder: haftanın problemini çözen fikir bu."},
+  {f:"login_frame.place",t:"Çerçeveyi pencerenin tam ortasına koyar. Dikkat: çerçeve <code>place</code> ile, içindekiler <code>pack</code> ile yerleşiyor. Aynı kap içinde ikisini karıştırmamak gerekir; burada farklı kaplarda oldukları için sorun yok."},
+  {f:"baslik = ctk.CTkLabel",n:2,t:"Kalın 20 punto başlık. <code>pady=(30, 20)</code>: üstte 30, altta 20 piksel boşluk (iki değerli kullanım bu hafta yapay zekâya sorulmuş)."},
+  {f:"kullanici_adi = ctk.CTkEntry",n:2,t:"Tek satırlık metin kutusu. <code>placeholder_text</code>, kutu boşken gri renkte görünen ipucu yazısı."},
+  {f:"sifre = ctk.CTkEntry",n:2,t:"<code>show=\"*\"</code> sayesinde yazılan her karakter ekranda yıldız olarak görünür. Değer arka planda yine normal metin olarak tutulur."},
+  {f:"giris_buton = ctk.CTkButton",n:2,t:"Giriş butonu. Henüz <code>command</code> parametresi yok, bu yüzden basınca hiçbir şey olmaz. Haftanın raporu da bunu söylüyor: \"butonlara işlev eklenmedi\"."}
+ ]},
+{n:5,date:"15 Kasım 2026",title:"Ekranlar arası geçiş ve ana panel",pct:20,ai:15,score:7,
+ sdlc:["Geliştirme: ilk etkileşim","Tasarım: dashboard yerleşimi"],
+ goals:["\"Giriş Yap\" butonuna tıklama işlevi eklenerek ana ekrana geçiş yapısının kurulması.","Sol menü (Sidebar) ve sağ içerik alanı (Content Frame) yerleşiminin tamamlanması.","Gemi durum bilgileri için örnek bilgi kartlarının arayüze yerleştirilmesi."],
+ why:"Görsel olarak duran giriş ekranını ana menüye bağlamak projenin akışını görmek için önemliydi. Veritabanına geçmeden önce gemi bilgilerinin ekranda nasıl duracağını görmek gerekiyordu.",
+ done:"Sınav haftası nedeniyle büyük çaplı geliştirme yapılamadı; geçen haftaki arayüzün üzerine ekranlar arası geçiş ve ana menü düzeni eklendi. \"Giriş Yap\" butonuna kontrol fonksiyonu bağlandı: basınca giriş çerçevesi gizleniyor (<code>place_forget</code>) ve ana ekran açılıyor. Sol tarafa menü butonları, sağa statik verili örnek gemi durum kartları eklendi.",
+ status:{ok:"Giriş → ana ekran geçişi, sol menü butonlarının dizilimi, ana paneldeki örnek gemi kartlarının yerleşimi.",wip:"Gemi Listesi ve Harita ekranlarının içerik çerçeveleri, arayüz detayları.",no:"SQLite bağlantısı, gerçek kullanıcı doğrulaması, canlı gemi konum/durum verileri."},
+ tech:"Python · CustomTkinter · VS Code",areas:["Arayüz / UI geliştirme","Kullanıcı giriş ve yetkilendirme"],
+ probs:[{p:"\"Giriş Yap\"a basınca ana ekran açılırken eski giriş çerçevesinin arkada görünmeye devam etmesi, ekranların üst üste binmesi.",cause:"Yeni çerçeveleri eklerken önceki giriş çerçevesini ekrandan kaldıran komutun kullanılmaması.",c:"Giriş fonksiyonunun içinde, yeni ekranı çizmeden önce <code>login_frame.place_forget()</code> eklemek.",r:"Giriş ekranı temizce kayboldu; aynı pencerede doğrudan sol menü ve Dashboard görüntülendi."}],
+ learned:["CTkButton'da command parametresiyle tıklamada fonksiyon çalıştırma.","CTkEntry içindeki metni .get() ile okuyup if koşulunda kontrol etme.","place_forget() ile çerçeveyi gizleyerek aynı pencerede sayfa geçişi; pack(side=\"left\", fill=\"y\") ile sol menü hizalama."],
+ next:["Hatalı kullanıcı adı/şifrede ekranda kırmızı uyarı mesajı.","\"Gemi Listesi\" butonunda sağ panelde gemi tablosu/listesi.","Gemiler ve kullanıcılar için temel SQLite tablolarının oluşturulmaya başlanması."],
+ aiNote:"Gemini, 30 dakikadan az. İki prompt: <code>place</code> ile yerleşmiş çerçeveyi gizleme (cevap: <code>place_forget()</code>, doğrudan kullanıldı) ve sağ alanı tamamen doldurma (cevap: <code>fill=\"both\", expand=True</code>; padx/pady eklenerek kullanıldı). Kodun geri kalanı geçen haftanın üzerine kendi eklendi.",
+ self:"Sınav haftasına rağmen sayfa geçişi ve Dashboard görünümü çalıştırıldı. Yanlış şifre uyarısının da bu hafta eklenmesi istenirdi.",
+ flags:["Metinde sol menüde dört buton (Ana Sayfa, Gemi Listesi, Harita / İzleme, Çıkış) ve \"CTkFrame ve CTkLabel ile kartlar\" geçiyor; rapordaki kodda ise iki buton ve tek bir CTkLabel satırı var. Rapordaki kod kısaltılmış bir parça olabilir, ama hoca karşılaştırırsa sorabilir: tam kodun dört butonu ve kart çerçevelerini içerdiğinden emin olmak gerekiyor."],
+ codeTitle:"Giriş kontrolü, sayfa geçişi ve Dashboard",
+ code:`import customtkinter as ctk
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+app = ctk.CTk()
+app.geometry("800x500")
+app.title("BAGİS - Akıllı Balıkçı Gemisi İzleme Sistemi")
+
+def ana_ekrani_ac():
+    login_frame.place_forget()
+
+    sidebar = ctk.CTkFrame(master=app, width=180, corner_radius=0)
+    sidebar.pack(side="left", fill="y")
+
+    menu_baslik = ctk.CTkLabel(master=sidebar, text="BAGİS MENÜ", font=("Arial", 18, "bold"))
+    menu_baslik.pack(pady=20, padx=10)
+
+    btn_anasayfa = ctk.CTkButton(master=sidebar, text="Ana Sayfa", width=140)
+    btn_anasayfa.pack(pady=10, padx=20)
+
+    btn_gemiler = ctk.CTkButton(master=sidebar, text="Gemi Listesi", width=140)
+    btn_gemiler.pack(pady=10, padx=20)
+
+    icerik_frame = ctk.CTkFrame(master=app, corner_radius=10)
+    icerik_frame.pack(side="right", fill="both", expand=True, padx=15, pady=15)
+
+    panel_baslik = ctk.CTkLabel(master=icerik_frame, text="Aktif Gemi Durum Paneli", font=("Arial", 20, "bold"))
+    panel_baslik.pack(pady=20)
+
+    gemi_kart1 = ctk.CTkLabel(master=icerik_frame, text="Gemi: Karadeniz-1 | Durum: Seyir Halinde | Hız: 12 Knot", font=("Arial", 14))
+    gemi_kart1.pack(pady=10)
+
+def giris_kontrol():
+    if kullanici_adi.get() == "admin" and sifre.get() == "1234":
+        ana_ekrani_ac()
+
+login_frame = ctk.CTkFrame(master=app, width=320, height=300, corner_radius=15)
+login_frame.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+
+baslik = ctk.CTkLabel(master=login_frame, text="BAGİS Sistem Girişi", font=("Arial", 20, "bold"))
+baslik.pack(pady=(30, 20), padx=20)
+
+kullanici_adi = ctk.CTkEntry(master=login_frame, placeholder_text="Kullanıcı Adı", width=220)
+kullanici_adi.pack(pady=10, padx=20)
+
+sifre = ctk.CTkEntry(master=login_frame, placeholder_text="Şifre", show="*", width=220)
+sifre.pack(pady=10, padx=20)
+
+giris_buton = ctk.CTkButton(master=login_frame, text="Giriş Yap", width=220, command=giris_kontrol)
+giris_buton.pack(pady=20, padx=20)
+
+app.mainloop()`,
+ ann:[
+  {f:"def ana_ekrani_ac",t:"Ana ekranı kuran fonksiyon. Tanımlandığı anda çalışmaz; sadece giriş başarılı olunca çağrılır. İçinde kullandığı <code>login_frame</code> aşağıda tanımlanıyor; bu sorun değil, çünkü fonksiyon çağrıldığında o değişken zaten oluşmuş olur."},
+  {f:"login_frame.place_forget()",t:"Haftanın çözümü: giriş çerçevesini ekrandan kaldırır ama silmez. Bu satır yokken eski form yeni ekranın arkasında görünüyordu. <code>place</code> ile konmuş bir şey <code>place_forget</code> ile gizlenir."},
+  {f:"sidebar = ctk.CTkFrame",n:2,t:"Sol menü çerçevesi. <code>side=\"left\"</code> pencerenin soluna yaslar, <code>fill=\"y\"</code> yukarıdan aşağı tüm yüksekliği kaplatır."},
+  {f:"btn_anasayfa = ctk.CTkButton",n:5,t:"Menü butonları. Henüz <code>command</code> verilmediği için basınca bir şey olmuyor; Hafta 6'nın öncelikli işi bu butonlara içerik değiştirme işlevi bağlamak."},
+  {f:"icerik_frame = ctk.CTkFrame",n:2,t:"Sağdaki içerik alanı. <code>fill=\"both\", expand=True</code>: menüden kalan bütün boşluğu hem yatay hem dikey doldur. Bu ikili olmadan çerçeve sadece içeriği kadar küçük kalıyordu (yapay zekâya sorulan ikinci soru)."},
+  {f:"gemi_kart1 = ctk.CTkLabel",n:2,t:"Örnek gemi bilgisi. Değerler (Karadeniz-1, Seyir Halinde, 12 Knot) şimdilik kodun içine sabit yazılmış; ileride SQLite'tan gelecek."},
+  {f:"def giris_kontrol",n:3,t:"Butonun çağırdığı fonksiyon. <code>.get()</code> ile iki kutudaki metni okur; ikisi de doğruysa ana ekranı açar. Yanlışsa hiçbir şey yapmaz (else yok), bu yüzden kullanıcıya geri bildirim de yok. Kullanıcı adı ve şifre kodun içine yazılı: geçici çözüm."},
+  {f:"command=giris_kontrol",t:"Geçen haftaki butondan tek farkı bu parametre. Dikkat: <code>giris_kontrol()</code> değil <code>giris_kontrol</code> yazılmış. Parantez konsaydı fonksiyon butona basılmadan, program açılırken bir kez çalışırdı."}
+ ]}
+];
+
+const PHASES=[
+ {k:"Planlama",pct:100,st:"done",when:"Hafta 1–2",gen:["Projenin amacı, kapsamı ve süresi belirlenir.","Hangi problemin çözüleceği netleşir."],
+  bagis:["Konu belirlendi: balıkçı gemilerini izleyen masaüstü sistem (BAGİS).","Haftalık hedef → yapılan → plan döngüsüyle ilerleniyor.","Hafta 1 raporu bu dosyada olmadığı için ilk planlama adımları burada görünmüyor."]},
+ {k:"Gereksinim analizi",pct:60,st:"wip",when:"Hafta 2",gen:["Sistemin ne yapması gerektiği (işlevsel) ve nasıl olması gerektiği (hız, güvenlik gibi, işlevsel olmayan) gereksinimler listelenir."],
+  bagis:["Teknik ister dokümanı okunup kapsam anlaşıldı (H2).","Raporlarda gereksinimler madde madde yazılmamış. Öneri: \"Kullanıcı giriş yapabilmeli, gemi listesi görüntülenebilmeli…\" gibi kısa bir işlevsel gereksinim listesi çıkarmak sunumda çok işe yarar."]},
+ {k:"Tasarım",pct:45,st:"wip",when:"Hafta 3–5",gen:["Teknoloji seçimi, ekran tasarımları, veritabanı şeması ve sistem mimarisi belirlenir."],
+  bagis:["Teknoloji seçildi: Python + CustomTkinter (H3).","Ekran tasarımı: giriş ekranı (H4), sol menü + içerik alanı düzeni (H5).","Eksik: veritabanı tasarımı (hangi tablolar, hangi sütunlar). H6'da başlaması planlanıyor."]},
+ {k:"Geliştirme",pct:30,st:"wip",when:"Hafta 4–5 →",gen:["Tasarım koda dökülür. Genelde en uzun aşama."],
+  bagis:["H4: giriş ekranının arayüz kodu.","H5: ilk etkileşim: buton → kontrol fonksiyonu → sayfa geçişi.","Sırada: menü butonlarının işlevleri, gemi listesi, SQLite bağlantısı."]},
+ {k:"Test",pct:10,st:"wip",when:"Her hafta (elle)",gen:["Yazılımın beklendiği gibi çalıştığı kontrol edilir: birim testleri, entegrasyon testleri, kullanıcı testleri."],
+  bagis:["Her hafta kod çalıştırılarak elle deneniyor (\"kodu çalıştırarak test ettim\").","Sistematik test henüz yok; teknik çalışmalar listesinde \"Test işlemleri\" hiç işaretlenmemiş.","Basit bir başlangıç: yanlış şifre, boş kutu, pencere boyutu değişimi gibi durumları içeren küçük bir test listesi."]},
+ {k:"Dağıtım",pct:0,st:"no",when:"Dönem sonu",gen:["Yazılım kullanıcıların kullanabileceği hale getirilir (kurulum dosyası, sunucu vb.)."],
+  bagis:["Henüz yok. Masaüstü uygulaması olduğu için dönem sonunda tek dosyalık bir .exe'ye çevirmek (örneğin PyInstaller ile) teslimde iyi durur."]},
+ {k:"Bakım",pct:0,st:"no",when:"Teslim sonrası",gen:["Kullanımda çıkan hatalar düzeltilir, yeni özellikler eklenir."],
+  bagis:["Ders projesi için kapsam dışı sayılabilir; raporda \"gelecek çalışmalar\" olarak geçebilir."]}
+];
+
+const GLOSS=[
+ ["GUI","Grafik kullanıcı arayüzü. Komut satırı yerine pencere, buton, kutu ile kullanılan program.",2],
+ ["Event-driven (olay güdümlü)","Programın sırayla akmak yerine olayları (tıklama, tuşa basma) bekleyip her olaya bağlı fonksiyonu çalıştırması.",2],
+ ["mainloop()","Pencereyi açık tutan ve olayları dinleyen ana döngü. Programın son satırı olur.",2],
+ ["widget (bileşen)","Arayüzdeki her parça: buton, etiket, metin kutusu, çerçeve.",2],
+ ["Tkinter","Python ile birlikte gelen standart arayüz kütüphanesi.",2],
+ ["command=","Butona basılınca çalışacak fonksiyon. Fonksiyonun adı parantezsiz verilir.",2],
+ ["lambda","Tek satırlık isimsiz fonksiyon. <code>lambda: print(\"…\")</code> gibi.",2],
+ ["Teknik İster Dokümanı","Projeden beklenenleri tanımlayan resmi gereksinim belgesi.",2],
+ ["CustomTkinter (ctk)","Tkinter üzerine kurulu, modern görünümlü ve tema destekli arayüz kütüphanesi.",3],
+ ["set_appearance_mode","Uygulamayı \"dark\", \"light\" ya da sistem temasına alır.",3],
+ ["CTk()","CustomTkinter ana penceresi.",3],
+ ["CTkButton","Yuvarlak köşeli modern buton.",3],
+ ["CTkLabel","Ekrana yazı koyan bileşen.",3],
+ ["CTkFrame","Diğer bileşenleri gruplayan kutu/çerçeve. Sayfa, menü, kart yapmanın temeli.",3],
+ ["master=","Bileşenin hangi pencere ya da çerçevenin içinde duracağı.",3],
+ ["pack()","Bileşenleri sırayla üst üste (ya da yan yana) dizen yerleşim yöntemi.",3],
+ ["place()","Bileşeni koordinat ya da oranla (relx/rely) tam bir noktaya koyan yöntem.",3],
+ ["grid()","Bileşenleri satır/sütun tablosuna yerleştiren yöntem. Raporlarda adı geçiyor, kodlarda henüz kullanılmadı.",3],
+ ["relx / rely / anchor","Pencereye göre oransal konum (0–1) ve bileşenin hangi noktasının oraya oturacağı.",3],
+ ["padx / pady","Bileşenin sağ-sol / üst-alt dış boşluğu. <code>pady=(30, 20)</code> üst ve alt ayrı.",4],
+ ["CTkEntry","Tek satırlık metin giriş kutusu.",4],
+ ["placeholder_text","Kutu boşken görünen gri ipucu yazısı.",4],
+ ["show=\"*\"","Yazılan karakterleri yıldız olarak gösterir; şifre kutuları için.",4],
+ ["corner_radius","Çerçeve ve butonların köşe yuvarlaklığı (piksel).",4],
+ ["Login ekranı","Kullanıcı adı ve şifreyle sisteme giriş ekranı.",4],
+ [".get()","Metin kutusuna yazılmış değeri okur.",5],
+ ["place_forget()","place ile konmuş bileşeni silmeden ekrandan gizler. Sayfa geçişinin temeli.",5],
+ ["fill / expand","fill: bileşenin boşluğu hangi yönde dolduracağı (x, y, both). expand=True: kalan boşluğu da sahiplen.",5],
+ ["side=\"left\"","pack ile bileşeni pencerenin soluna yaslar.",5],
+ ["Dashboard","Özet bilgilerin toplandığı ana panel ekranı.",5],
+ ["Sidebar","Ekranın yanında duran menü sütunu.",5],
+ ["SQLite","Tek bir dosyada çalışan, sunucu gerektirmeyen veritabanı. Python'da sqlite3 modülü hazır gelir.",5],
+ ["Statik veri","Koda sabit yazılmış örnek veri. Gerçek sistemde veritabanından gelir.",5],
+ ["SDLC","Yazılım geliştirme yaşam döngüsü: planlama, analiz, tasarım, geliştirme, test, dağıtım, bakım.",0],
+ ["Prototip","Asıl sistemden önce ekranları göstermek için yapılan çalışan taslak.",0],
+ ["Artırımlı geliştirme","Yazılımı küçük parçalar halinde, her seferinde öncekinin üzerine ekleyerek büyütmek.",0]
+];
+
+const QA=[
+ {q:"Neden Tkinter değil de CustomTkinter seçtin?",lvl:"temel",a:["Standart Tkinter'ın görünümü eski; karanlık tema, yuvarlak köşeler gibi şeyler için her bileşeni tek tek ayarlamak gerekiyor. CustomTkinter, Tkinter'ın üzerine kurulu olduğu için öğrendiğim mantık (pencere, pack/place, command) aynen geçerli; tek satırla tema veriyor.","Alternatifler: PyQt/PySide daha güçlü ama öğrenmesi daha uzun; web tabanlı (Flask + HTML) da olurdu ama masaüstü uygulaması için gereksiz karmaşıklık."]},
+ {q:"pack, place ve grid arasındaki fark ne? Hangisini nerede kullandın?",lvl:"temel",a:["pack bileşenleri sırayla dizer; place tam konuma koyar; grid satır/sütun tablosuna yerleştirir.","Giriş çerçevesini pencerenin tam ortasında tutmak için place, çerçevenin içindeki elemanları alt alta dizmek için pack kullandım. Ana ekranda menü ve içerik alanını yan yana koymak için pack(side=…) kullandım. Aynı kap içinde iki yöntemi karıştırmamak gerekiyor."]},
+ {q:"place_forget() ne yapıyor, destroy()'dan farkı ne?",lvl:"temel",a:["place_forget() çerçeveyi ekrandan kaldırır ama nesne bellekte kalır; tekrar place() ile geri getirilebilir. destroy() ise bileşeni tamamen siler.","Çıkış butonu yapıldığında giriş ekranına geri dönmek için place_forget mantığı işe yarayacak: çerçeveyi yeniden oluşturmadan tekrar gösterebilirim."]},
+ {q:"Kullanıcı adı ve şifre neden kodun içinde yazıyor? Bu güvenli mi?",lvl:"zor",a:["Değil, ve bunun farkındayım: \"admin/1234\" sadece sayfa geçişini denemek için geçici. Kodu gören herkes şifreyi görür.","Plan: Hafta 6'da SQLite'ta kullanıcılar tablosu oluşturmak ve girişi oradan doğrulamak. Doğru yöntem şifreyi düz metin değil, hashlib gibi bir kütüphaneyle özetlenmiş (hash) halde saklamak."]},
+ {q:"Yanlış şifre girince ne oluyor?",lvl:"orta",a:["Şu an hiçbir şey: giris_kontrol fonksiyonunda else bloğu yok, kullanıcı neden giremediğini anlamıyor. Hafta 6 planının ilk maddesi bu: kırmızı bir uyarı etiketi göstermek."]},
+ {q:"Neden veritabanından önce arayüzü yaptın?",lvl:"orta",a:["Ekranlar netleşince hangi verinin gerektiği de netleşiyor: gemi kartında ad, durum, hız gösterdiğimiz için gemiler tablosunda en az bu sütunlar olacak. Bu bir prototip yaklaşımı.","Riski de var: veri modeli sonradan arayüzün değişmesini gerektirebilir. Bu yüzden veritabanı tasarımını artık geciktirmemem gerekiyor."]},
+ {q:"Proje %20'de. Bu hızla dönem sonuna yetişecek mi?",lvl:"zor",a:["Dürüst cevap gerekiyor: Hafta 2'den 5'e haftada ortalama 5 puan ilerleme var; bu hızla kalan %80 yaklaşık 16 hafta sürer. Ama ilk haftalar öğrenmeye gitti (Tkinter, 21 videoluk CustomTkinter serisi); artık altyapı hazır olduğu için hızın artması bekleniyor.","Somut plan göstermek iyi olur: hangi haftada veritabanı, hangi haftada gemi listesi, hangi haftada harita bitecek. Sınav haftaları da plana yazılmalı."]},
+ {q:"Gemilerin konum ve durum verisi nereden gelecek?",lvl:"zor",a:["Raporlarda bu henüz belirtilmemiş; kararın verilmesi gerekiyor. Ders projesi için en gerçekçi seçenek, gemilerin konumunu belirli aralıklarla değiştiren bir simülasyon (örnek veri üreteci) yazmak.","Gerçek dünyada gemiler konumlarını AIS (Otomatik Tanımlama Sistemi) sinyalleriyle yayınlar; ama bu verilere erişim genelde sınırlı ya da ücretli. Sunumda \"simüle veriyle başlayıp gerçek veri kaynağına bağlanabilecek şekilde tasarlıyorum\" demek güçlü bir cevap."]},
+ {q:"Raporda menüde dört buton yazıyor, kodda iki tane var. Neden?",lvl:"zor",a:["Rapordaki kod kısaltılmış bir parçaysa bunu söylemek yeterli; ama tam kodda Harita / İzleme ve Çıkış butonlarının da olduğundan emin olmak lazım. Aynı şekilde metinde kartlar için CTkFrame + CTkLabel deniyor, kodda tek bir CTkLabel var."]},
+ {q:"mainloop() ne işe yarıyor? Olmasa ne olur?",lvl:"temel",a:["Pencereyi açık tutan ve tıklama gibi olayları bekleyen döngü. Olmasa program son satıra gelip biter, pencere açılıp hemen kapanır. Olay güdümlü programlamanın merkezi bu satır."]},
+ {q:"fill=\"both\" ve expand=True ne yapıyor?",lvl:"orta",a:["fill, bileşene ayrılan alanı hangi yönde dolduracağını söyler. expand=True ise pencerede kalan boşluğu da bu bileşene verir. İkisi birlikte, içerik alanının menüden kalan bütün boşluğu kaplamasını sağlıyor."]},
+ {q:"command=giris_kontrol yazmışsın, neden parantez yok?",lvl:"orta",a:["Butona fonksiyonun kendisini veriyorum, \"buna basılınca bunu çağır\" diyorum. giris_kontrol() yazsaydım fonksiyon program açılırken bir kez çalışır ve dönüş değeri (None) butona bağlanırdı."]},
+ {q:"Yapay zekâyı ne kadar ve nasıl kullandın?",lvl:"temel",a:["Hafta 2'de yeni başladığım için yaklaşık %30 (örnek kodu doğrudan aldım, satır satır inceledim); Hafta 3-5'te %15 civarı. Sonrasında kodun ana yapısını kendim yazıp sadece unuttuğum parametreleri sordum: show='*', pady=(üst, alt), place_forget, fill/expand.","Her çıktıyı kodu çalıştırarak test ettim."]},
+ {q:"Projeyi hangi SDLC modeliyle geliştiriyorsun?",lvl:"orta",a:["Prototip ağırlıklı artırımlı geliştirme: önce ekranları görsel taslak olarak kurdum, sonra her hafta bir öncekinin üzerine işlev ekliyorum. Haftalık rapor döngüsü (hedef, yapılan, öz değerlendirme, plan) da çevik yöntemlerdeki sprint döngüsüne benziyor."]},
+ {q:"Kodu nasıl saklıyorsun, Git kullanıyor musun?",lvl:"zor",a:["Raporlarda \"Git / GitHub kullanımı\" hiç işaretlenmemiş. Kullanılmıyorsa başlamak çok kolay ve hocaların sevdiği bir şey: her hafta bir commit, haftalık ilerlemenin kanıtı olur."]}
+];
+
+/* ---------- yardımcılar ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function hl(line){
+  // basit Python renklendirme
+  const toks=[]; let i=0;
+  const re=/(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(import|as|def|if|and|or|else|return|lambda|True|False|None|from)\b|\b(\d+(?:\.\d+)?)\b|\b(print)\b|\b([A-Za-z_]\w*)(?=\()/g;
+  let out="",last=0,m;
+  while((m=re.exec(line))){
+    out+=esc(line.slice(last,m.index));
+    if(m[1])out+=`<span class="c">${esc(m[1])}</span>`;
+    else if(m[2])out+=`<span class="s">${esc(m[2])}</span>`;
+    else if(m[3])out+=`<span class="k">${m[3]}</span>`;
+    else if(m[4])out+=`<span class="nm">${m[4]}</span>`;
+    else if(m[5])out+=`<span class="b">${m[5]}</span>`;
+    else if(m[6])out+=`<span class="f">${m[6]}</span>`;
+    last=re.lastIndex;
+  }
+  return out+esc(line.slice(last));
+}
+
+/* ---------- grafikler ---------- */
+function lineChart(vals,max,unit,color){
+  const W=300,H=110,px=26,py=16,lbl=["H2","H3","H4","H5"];
+  const x=i=>px+i*(W-2*px)/(vals.length-1), y=v=>H-py-(v/max)*(H-2*py);
+  let g=`<svg viewBox="0 0 ${W} ${H+14}" role="img">`;
+  [0,.5,1].forEach(f=>{const yy=y(max*f);g+=`<line x1="${px}" x2="${W-px}" y1="${yy}" y2="${yy}" stroke="var(--line)"/>`});
+  g+=`<polyline fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" points="${vals.map((v,i)=>x(i)+","+y(v)).join(" ")}"/>`;
+  vals.forEach((v,i)=>{g+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${color}"/><text x="${x(i)}" y="${y(v)-9}" text-anchor="middle" font-size="11" fill="var(--ink)" font-family="IBM Plex Mono">${v}${unit}</text><text x="${x(i)}" y="${H+10}" text-anchor="middle" font-size="10.5" fill="var(--muted)" font-family="IBM Plex Mono">${lbl[i]}</text>`});
+  return g+"</svg>";
+}
+$("#charts").innerHTML=[
+ ["Tamamlanma oranı",WEEKS.map(w=>w.pct),30,"%","var(--teal)","Her hafta +5 puan"],
+ ["Yapay zekâ kullanım oranı",WEEKS.map(w=>w.ai),40,"%","var(--amber)","H2'den sonra %15'te sabit"],
+ ["Öz değerlendirme puanı",WEEKS.map(w=>w.score),10,"","var(--red)","10 üzerinden"]
+].map(([t,v,m,u,c,s])=>`<div class="card chart"><h4>${t}</h4>${lineChart(v,m,u,c)}<p style="font-size:.82rem;color:var(--muted);margin-top:4px">${s}</p></div>`).join("");
+
+/* ---------- SDLC ---------- */
+let curPh=3;
+function renderPh(){
+  $("#phases").innerHTML=PHASES.map((p,i)=>`<button class="ph ${p.st} ${i===curPh?"on":""}" data-i="${i}"><span class="i">0${i+1}</span><b>${p.k}</b><div class="bar"><i style="width:${Math.max(p.pct,0)}%"></i></div></button>`).join("");
+  const p=PHASES[curPh], tag=p.st==="done"?'<span class="tag t-done">Tamamlandı</span>':p.st==="wip"?'<span class="tag t-wip">Devam ediyor</span>':'<span class="tag t-no">Başlanmadı</span>';
+  $("#phdetail").innerHTML=`<div><h3>${p.k}</h3>${tag} <span class="mono" style="color:var(--muted);margin-left:8px">${p.when}</span><span class="lbl" style="margin-top:16px">Genel olarak</span><ul>${p.gen.map(x=>`<li>${x}</li>`).join("")}</ul></div><div><span class="lbl">BAGİS'te</span><ul>${p.bagis.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+  document.querySelectorAll(".ph").forEach(b=>b.onclick=()=>{curPh=+b.dataset.i;renderPh()});
+}
+renderPh();
+
+/* ---------- haftalar ---------- */
+let curW=3;
+function renderWeekTabs(){
+  $("#wtabs").innerHTML=`<button class="wtab ghost" disabled><small>Hafta 1</small><b>Rapor yok</b></button>`+
+   WEEKS.map((w,i)=>`<button class="wtab ${i===curW?"on":""}" data-i="${i}"><small>Hafta ${w.n} · ${w.date}</small><b>%${w.pct}</b></button>`).join("");
+  document.querySelectorAll(".wtab[data-i]").forEach(b=>b.onclick=()=>{curW=+b.dataset.i;renderWeekTabs();renderWeek()});
+}
+function renderWeek(){
+  const w=WEEKS[curW], lines=w.code.split("\n");
+  const ann=w.ann.map(a=>{const s=lines.findIndex(l=>l.includes(a.f));return {...a,s,e:s+(a.n||1)-1}});
+  const pr=w.probs.map(p=>`<dl class="prob"><dt>Problem</dt><dd>${p.p}</dd>${p.cause?`<dt>Sebep</dt><dd>${p.cause}</dd>`:""}<dt>Çözüm</dt><dd>${p.c}</dd><dt>Sonuç</dt><dd>${p.r}</dd></dl>`).join("");
+  $("#week").innerHTML=`
+  <div class="wk-head"><div><span class="kicker">Hafta ${w.n} · ${w.date}</span><h3>${w.title}</h3>
+   <div class="sdlc-chip">SDLC: ${w.sdlc.map(s=>`<span class="tag t-wip">${s}</span>`).join(" ")}</div></div>
+   <div class="stats"><div class="stat"><small>Tamamlanma</small><b>%${w.pct}</b></div><div class="stat"><small>Yapay zekâ</small><b>%${w.ai}</b></div><div class="stat"><small>Öz puan</small><b>${w.score}/10</b></div></div></div>
+  <div class="wk-grid">
+   <div class="card blk"><h4>Hedefler</h4><ol>${w.goals.map(g=>`<li>${g}</li>`).join("")}</ol><p style="color:var(--muted);font-size:.9rem;margin-top:8px">${w.why}</p></div>
+   <div class="card blk"><h4>Yapılanlar</h4><p>${w.done}</p><p style="margin-top:10px;font-size:.88rem;color:var(--muted)"><b style="color:var(--ink)">Teknoloji:</b> ${w.tech} · <b style="color:var(--ink)">Alan:</b> ${w.areas.join(", ")}</p></div>
+   <div class="card blk"><h4>Durum</h4><p style="font-size:.93rem"><span class="tag t-done">Bitti</span> ${w.status.ok}</p><p style="font-size:.93rem;margin-top:8px"><span class="tag t-wip">Sürüyor</span> ${w.status.wip}</p><p style="font-size:.93rem;margin-top:8px"><span class="tag t-no">Ertelendi</span> ${w.status.no}</p></div>
+   <div class="card blk"><h4>Problem ve çözüm</h4>${pr}</div>
+   <div class="full blk"><h4 style="margin-top:6px">Kod: ${w.codeTitle}</h4>
+    <div class="codewrap"><pre class="code" id="code">${lines.map((l,i)=>`<span class="ln" data-n="${i+1}">${hl(l)||" "}</span>`).join("")}</pre>
+    <div class="ann" id="ann">${ann.map((a,i)=>`<button data-i="${i}"><span class="lr">satır ${a.s+1}${a.e>a.s?"–"+(a.e+1):""}</span>${a.t}</button>`).join("")}</div></div></div>
+   <div class="card blk"><h4>Öğrenilenler</h4><ol>${w.learned.map(g=>`<li>${g}</li>`).join("")}</ol></div>
+   <div class="card blk"><h4>Gelecek hafta planı</h4><ol>${w.next.map(g=>`<li>${g}</li>`).join("")}</ol></div>
+   <div class="card blk"><h4>Yapay zekâ kullanımı</h4><p style="font-size:.94rem">${w.aiNote}</p></div>
+   <div class="card blk"><h4>Öz değerlendirme · ${w.score}/10</h4><p style="font-size:.94rem">${w.self}</p></div>
+   ${w.flags.length?`<div class="full">${w.flags.map(f=>`<div class="note red" style="margin-top:0"><b>Rapor kontrol notu:</b> ${f}</div>`).join("")}</div>`:""}
+  </div>`;
+  const lnEls=[...document.querySelectorAll("#code .ln")];
+  document.querySelectorAll("#ann button").forEach(b=>{
+    const a=ann[+b.dataset.i];
+    const on=()=>{document.querySelectorAll("#ann button").forEach(x=>x.classList.remove("on"));b.classList.add("on");lnEls.forEach((l,i)=>l.classList.toggle("hot",i>=a.s&&i<=a.e))};
+    b.onmouseenter=on;b.onclick=()=>{on();const el=lnEls[a.s];const pre=$("#code");if(el&&window.innerWidth<=900)el.scrollIntoView({block:"center",behavior:"smooth"})};
+  });
+}
+renderWeekTabs();renderWeek();
+
+/* ---------- simülatör ---------- */
+const con=$("#console");
+function log(t,c){con.innerHTML+=`<div class="${c||""}">${t}</div>`;con.scrollTop=con.scrollHeight}
+let simW=3, warn=false;
+const SIMS=[
+ {lbl:"Hafta 2 · Tkinter",title:"İlk Arayüz Denemesi",size:[300,200],dark:false,
+  side:`<h3>Hafta 2: Tkinter penceresi</h3><p>300×200 piksellik standart Windows penceresi. Etiket <code>pack(pady=20)</code> ile üstte, buton hemen altında.</p><ul><li>Butona bas: <code>command</code> içindeki <code>lambda</code> çalışır, konsola yazar.</li><li>Pencere kendisi değişmez; çıktı sadece terminalde görünür. Arayüzde geri bildirim yok.</li></ul>`},
+ {lbl:"Hafta 3 · CTk test",title:"BAGİS - Arayüz Testi",size:[400,240],dark:true,
+  side:`<h3>Hafta 3: CustomTkinter testi</h3><p>Aynı fikir, yeni kütüphane: karanlık tema ve yuvarlak köşeli mavi buton, <code>place</code> ile pencerenin tam ortasında.</p><ul><li>Fark tek satırlık tema ayarında: <code>set_appearance_mode("dark")</code>.</li><li>Buton yine sadece konsola yazıyor.</li></ul>`},
+ {lbl:"Hafta 4 · Giriş taslağı",title:"BAGİS - Akıllı Balıkçı Gemisi İzleme Sistemi",size:[700,450],dark:true,
+  side:`<h3>Hafta 4: Giriş ekranı taslağı</h3><p>Tüm form elemanları ortadaki <code>login_frame</code> çerçevesinin içinde. Şifre kutusuna yaz: karakterler yıldız olarak görünür.</p><ul><li>"Giriş Yap" butonunun <code>command</code>'ı yok, basınca hiçbir şey olmaz. Bu bir prototip: sadece görünüm.</li></ul>`},
+ {lbl:"Hafta 5 · Çalışan giriş",title:"BAGİS - Akıllı Balıkçı Gemisi İzleme Sistemi",size:[800,500],dark:true,
+  side:`<h3>Hafta 5: Giriş kontrolü ve Dashboard</h3><p>Kullanıcı adına <code>admin</code>, şifreye <code>1234</code> yazıp "Giriş Yap"a bas. <code>place_forget()</code> giriş çerçevesini gizler, sol menü ve içerik paneli çizilir.</p><ul><li>Önce yanlış şifre dene: rapordaki kodda <code>else</code> olmadığı için hiçbir şey olmaz.</li><li>Menü butonlarının henüz işlevi yok.</li></ul><label class="toggle"><input type="checkbox" id="w6"> Hafta 6 planını uygula: hatalı girişte kırmızı uyarı</label>`}
+];
+function renderSim(){
+  $("#simtabs").innerHTML=SIMS.map((s,i)=>`<button class="${i===simW?"on":""}" data-i="${i}">${s.lbl}</button>`).join("");
+  document.querySelectorAll("#simtabs button").forEach(b=>b.onclick=()=>{simW=+b.dataset.i;renderSim()});
+  const s=SIMS[simW];
+  $("#simside").innerHTML=s.side;
+  con.innerHTML=`<div class="p">$ python bagis.py</div>`;
+  const ar=s.size[1]/s.size[0];
+  $("#os").innerHTML=`<div class="tb ${s.dark?"dk":""}"><span>${s.title}</span><i>–</i><i>□</i><i>✕</i></div><div class="win ${s.dark?"ctk":"tkwin"}" id="win" style="aspect-ratio:${s.size[0]}/${s.size[1]}"></div>`;
+  const win=$("#win");
+  if(simW===0){
+    win.innerHTML=`<div style="margin-top:22px">Arayüz Tasarımı Öğreniyorum</div><button class="tkbtn" style="margin-top:22px" id="b">Bana Tıkla</button>`;
+    $("#b").onclick=()=>log("Buton çalışıyor!");
+  }else if(simW===1){
+    win.innerHTML=`<button class="ctkbtn" id="b" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)">Sisteme Giriş</button>`;
+    $("#b").onclick=()=>log("Tıklandı!");
+  }else{
+    const W=s.size[0];
+    win.innerHTML=`<div class="ctkframe" id="lf" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:${320/W*100}%;min-width:220px;padding:${simW===2?"22px 20px 6px":"20px 20px 4px"};display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div style="font:700 clamp(15px,2.2vw,20px) Arial;margin-bottom:6px">BAGİS Sistem Girişi</div>
+      <input class="ctkentry" id="u" placeholder="Kullanıcı Adı" autocomplete="off">
+      <input class="ctkentry" id="p" type="password" placeholder="Şifre" autocomplete="off">
+      <div id="err" style="color:#ff5555;font-size:12.5px;min-height:0"></div>
+      <button class="ctkbtn" id="b" style="width:100%;margin:6px 0 14px">Giriş Yap</button></div>`;
+    if(simW===2){
+      $("#b").onclick=()=>{log("# butona basıldı: command tanımlı değil, hiçbir şey olmadı","w");$("#b").classList.remove("flash");void $("#b").offsetWidth;$("#b").classList.add("flash")};
+    }else{
+      const w6=$("#w6"); w6.checked=warn; w6.onchange=()=>{warn=w6.checked};
+      const go=()=>{
+        const u=$("#u").value,p=$("#p").value;
+        log(`giris_kontrol(): kullanici_adi.get() = "${esc(u)}", sifre.get() = "${"*".repeat(p.length)}"`,"p");
+        if(u==="admin"&&p==="1234"){
+          log("koşul True → ana_ekrani_ac()");
+          log("login_frame.place_forget()","w");
+          win.innerHTML=`<div style="display:flex;height:100%">
+            <div style="width:${180/W*100}%;min-width:110px;background:#2b2b2b;display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:10px">
+              <div style="font:700 clamp(12px,1.8vw,18px) Arial;margin-bottom:6px">BAGİS MENÜ</div>
+              ${["Ana Sayfa","Gemi Listesi"].map(t=>`<button class="ctkbtn mb" style="width:84%;padding:0 6px">${t}</button>`).join("")}
+            </div>
+            <div style="flex:1;margin:${15/W*100}%;background:#2b2b2b;border-radius:10px;display:flex;flex-direction:column;align-items:center;padding-top:14px;gap:10px;text-align:center">
+              <div style="font:700 clamp(14px,2vw,20px) Arial">Aktif Gemi Durum Paneli</div>
+              <div style="font:clamp(11px,1.4vw,14px) Arial;padding:0 8px">Gemi: Karadeniz-1 | Durum: Seyir Halinde | Hız: 12 Knot</div>
+            </div></div>`;
+          win.querySelectorAll(".mb").forEach(b=>b.onclick=()=>log(`# "${b.textContent}": command yok (Hafta 6 işi)`,"w"));
+        }else{
+          if(warn){$("#err").textContent="Kullanıcı adı veya şifre hatalı!";$("#err").style.marginTop="2px";log("koşul False → hata etiketi gösterildi (Hafta 6 planı)","r")}
+          else log("koşul False → else yok, hiçbir şey olmadı","w");
+        }
+      };
+      $("#b").onclick=go;
+      $("#p").onkeydown=e=>{if(e.key==="Enter")log("# Enter tuşu bağlı değil (bind yok); butona basmak gerekiyor","w")};
+    }
+  }
+}
+renderSim();
+
+/* ---------- sözlük ---------- */
+function renderGloss(q=""){
+  q=q.toLocaleLowerCase("tr");
+  $("#gloss").innerHTML=GLOSS.filter(g=>(g[0]+" "+g[1]).toLocaleLowerCase("tr").includes(q))
+   .map(g=>`<dl><dt>${esc(g[0])}</dt><dd>${g[1]}</dd><span class="wk">${g[2]?"Hafta "+g[2]:"Genel"}</span></dl>`).join("")||`<p style="color:var(--muted)">Sonuç yok.</p>`;
+}
+$("#gsearch").oninput=e=>renderGloss(e.target.value);renderGloss();
+
+/* ---------- sorular ---------- */
+let qf="hepsi";
+function renderQA(){
+  const L={temel:["Temel","t-done"],orta:["Orta","t-wip"],zor:["Zor","t-red"]};
+  $("#qafilter").innerHTML=["hepsi","temel","orta","zor"].map(k=>`<button class="${k===qf?"on":""}" data-k="${k}">${k==="hepsi"?"Hepsi ("+QA.length+")":L[k][0]+" ("+QA.filter(x=>x.lvl===k).length+")"}</button>`).join("");
+  document.querySelectorAll("#qafilter button").forEach(b=>b.onclick=()=>{qf=b.dataset.k;renderQA()});
+  $("#qa").innerHTML=QA.filter(x=>qf==="hepsi"||x.lvl===qf).map(x=>`<details class="qa"><summary>${x.q}<span class="tag ${L[x.lvl][1]} lvl">${L[x.lvl][0]}</span></summary><div class="ans">${x.a.map(p=>`<p>${p}</p>`).join("")}</div></details>`).join("");
+}
+renderQA();
+
+/* ---------- aktif menü ---------- */
+const secs=[...document.querySelectorAll("main section")];
+const navA=[...document.querySelectorAll("#links a")];
+addEventListener("scroll",()=>{let cur="";secs.forEach(s=>{if(s.getBoundingClientRect().top<120)cur=s.id});navA.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+cur))},{passive:true});
+</script>
+</body>
+</html>
